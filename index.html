@@ -1,157 +1,94 @@
-<!DOCTYPE html>
-<html lang="en">
+ <!DOCTYPE html>
+<html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Anik Now</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-    }
-
-    body {
-      background: #f5f6f8;
-      color: #111827;
-    }
-
-    header {
-      background: #111827;
-      color: white;
-      padding: 18px 25px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .logo {
-      font-size: 26px;
-      font-weight: bold;
-    }
-
-    .tagline {
-      font-size: 14px;
-      opacity: 0.8;
-    }
-
-    .hero {
-      text-align: center;
-      padding: 70px 20px;
-      background: white;
-    }
-
-    .hero h1 {
-      font-size: 42px;
-      margin-bottom: 15px;
-    }
-
-    .hero p {
-      font-size: 18px;
-      color: #6b7280;
-      margin-bottom: 25px;
-    }
-
-    .button {
-      display: inline-block;
-      background: #111827;
-      color: white;
-      padding: 13px 24px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .section {
-      max-width: 1000px;
-      margin: 35px auto;
-      padding: 0 20px;
-    }
-
-    .section h2 {
-      margin-bottom: 20px;
-    }
-
-    .card {
-      background: white;
-      padding: 22px;
-      border-radius: 12px;
-      margin-bottom: 15px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-
-    .card h3 {
-      margin-bottom: 8px;
-    }
-
-    .card p {
-      color: #6b7280;
-      line-height: 1.5;
-    }
-
-    .safety {
-      background: #fff7ed;
-      border-left: 5px solid #f97316;
-      padding: 20px;
-      border-radius: 8px;
-    }
-
-    footer {
-      text-align: center;
-      padding: 30px;
-      color: #6b7280;
-      font-size: 14px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anik Now</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 0 15px; background: #f4f4f9; color: #333; }
+        h1 { color: #0070f3; text-align: center; }
+        .post-box, .post-card { background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        textarea { width: 100%; height: 90px; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
+        button { background: #0070f3; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; }
+        button:hover { background: #0051a2; }
+        .time { font-size: 12px; color: #888; margin-top: 5px; }
+    </style>
 </head>
-
 <body>
 
-  <header>
-    <div class="logo">Anik Now</div>
-    <div class="tagline">What's happening now</div>
-  </header>
+    <h1>Anik Now</h1>
 
-  <section class="hero">
-    <h1>Welcome to Anik Now</h1>
-    <p>Discover and share the latest events, stories and trends.</p>
-    <a href="#" class="button">Explore Now</a>
-  </section>
-
-  <section class="section">
-    <h2>Trending Now</h2>
-
-    <div class="card">
-      <h3>Welcome to Anik Now 🚀</h3>
-      <p>
-        This is the beginning of a new community platform where people
-        can discover what's happening around them.
-      </p>
+    <!-- পোস্ট লেখার বক্স -->
+    <div class="post-box">
+        <h3>আপনার মনের কথা লিখুন:</h3>
+        <textarea id="postContent" placeholder="এখানে কিছু লিখুন..."></textarea>
+        <button onclick="submitPost()">পোস্ট করুন</button>
     </div>
 
-    <div class="card">
-      <h3>More stories coming soon</h3>
-      <p>
-        Soon users will be able to create posts, share stories,
-        like, comment and discover trending content.
-      </p>
+    <!-- পোস্ট দেখানোর জায়গা -->
+    <div id="postsContainer">
+        <p style="text-align: center; color: #666;">পোস্ট লোড হচ্ছে...</p>
     </div>
 
-    <div class="safety">
-      <h3>🛡️ Community Safety</h3>
-      <p>
-        Anik Now will not allow nudity, sexual content, harassment,
-        abusive content, illegal harmful content, or political and
-        election-related videos and posts.
-      </p>
-    </div>
-  </section>
+    <script>
+        const SUPABASE_URL = 'https://aoitrfekcvhnfacusdpg.supabase.co';
+        const SUPABASE_ANON_KEY = 'Sb_publishable_jD6GEpnLwUL5YEr8bz9TUA_b2JHK_k5';
 
-  <footer>
-    © 2026 Anik Now · Built for a safer community
-  </footer>
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        async function submitPost() {
+            const contentInput = document.getElementById('postContent');
+            const content = contentInput.value;
+            if (!content.trim()) {
+                alert('দয়া করে কিছু লিখে তারপর পোস্ট করুন!');
+                return;
+            }
+
+            const { error } = await _supabase
+                .from('posts')
+                .insert([{ content: content }]);
+
+            if (error) {
+                alert('পোস্ট করতে সমস্যা হয়েছে: ' + error.message);
+            } else {
+                contentInput.value = '';
+                alert('পোস্ট সফলভাবে প্রকাশিত হয়েছে!');
+                loadPosts();
+            }
+        }
+
+        async function loadPosts() {
+            const container = document.getElementById('postsContainer');
+            const { data, error } = await _supabase
+                .from('posts')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                container.innerHTML = '<p style="color: red;">পোস্ট লোড করা যায়নি।</p>';
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666;">এখনো কোনো পোস্ট নেই। প্রথম পোস্টটি আপনিই করুন!</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            data.forEach(post => {
+                const card = document.createElement('div');
+                card.className = 'post-card';
+                card.innerHTML = `
+                    <p style="white-space: pre-wrap; word-break: break-word;">${post.content}</p>
+                    <div class="time">${new Date(post.created_at).toLocaleString('bn-BD')}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        loadPosts();
+    </script>
 </body>
 </html>
